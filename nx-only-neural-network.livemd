@@ -1,0 +1,69 @@
+# Nx only neural network
+
+## Section
+
+```elixir
+Mix.install([
+  {:nx, "~> 0.5"}
+])
+```
+
+```elixir
+defmodule NeuralNetwork do
+  import Nx.Defn
+
+  defn dense(input, weight, bias) do
+    input
+    |> Nx.dot(weight)
+    |> Nx.add(bias)
+  end
+
+  defn activation(input) do
+    Nx.sigmoid(input)
+  end
+
+  defn hidden(input, weight, bias) do
+    input
+    |> dense(weight, bias)
+    |> activation()
+  end
+
+  defn output(input, weight, bias) do
+    input
+    |> dense(weight, bias)
+    |> activation()
+  end
+
+  defn predict(input, w1, b1, w2, b2) do
+    input
+    |> hidden(w1, b1)
+    |> output(w2, b2)
+  end
+end
+```
+
+```elixir
+# Define input shape and weights/biases shapes
+# Example input shape with batch size 1 and 3 features
+input_shape = {1, 3}
+# Example shape for weights of the first layer
+w1_shape = {3, 4}
+# Example shape for biases of the first layer
+b1_shape = {4}
+# Example shape for weights of the second layer
+w2_shape = {4, 1}
+# Example shape for biases of the second layer
+b2_shape = {1}
+key = Nx.Random.key(42)
+{w1, new_key} = Nx.Random.uniform(key, shape: w1_shape)
+{b1, new_key} = Nx.Random.uniform(new_key, shape: b1_shape)
+{w2, new_key} = Nx.Random.uniform(new_key, shape: w2_shape)
+{b2, new_key} = Nx.Random.uniform(new_key, shape: b2_shape)
+```
+
+```elixir
+{input, new_key} = Nx.Random.uniform(new_key, shape: input_shape)
+
+input
+|> NeuralNetwork.predict(w1, b1, w2, b2)
+```
